@@ -114,6 +114,7 @@ int main() {
         type = SEMCO;
     }
 
+    /* wisol */
     if (strncasecmp(mac_addr_half, "48:5A:3F", 9) == 0) {
         type = WISOL;
     }
@@ -146,15 +147,6 @@ int main() {
             case SEMCO3RD:
                 type_str = "semco3rd";
             break;
-            case SEMCO3RD:
-                ALOGI("Writing semco3rd to %s\n", CID_PATH);
-                ret = fputs("semco3rd", cidfile);
-            break;
-            case WISOL:
-                ALOGI("Writing wisol to %s\n", CID_PATH);
-                ret = fputs("wisol", cidfile);
-            break;
-         }
             case SEMCO:
                 type_str = "semco";
                 break;
