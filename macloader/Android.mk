@@ -4,7 +4,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-    macloader.c
+    macloader.cpp
 
 LOCAL_SHARED_LIBRARIES := \
     liblog libutils
