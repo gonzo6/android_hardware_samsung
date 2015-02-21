@@ -61,10 +61,6 @@
 
 #include <utils/threads.h>
 
-#define NUM_SUPPORTED_RESOLUTION_2D      (14)
-#define NUM_SUPPORTED_RESOLUTION_S3D_TB  (4)
-#define NUM_SUPPORTED_RESOLUTION_S3D_SBS (3)
-
 
 namespace android {
 
@@ -77,12 +73,6 @@ public :
         HDMI_LAYER_GRAPHIC_0,
         HDMI_LAYER_GRAPHIC_1,
         HDMI_LAYER_MAX,
-    };
-
-    enum HDMI_S3D_MODE {
-        HDMI_2D = 0,
-        HDMI_S3D_TB,
-        HDMI_S3D_SBS,
     };
 
 private :
@@ -139,7 +129,6 @@ private :
 
     int          mHdmiOutputMode;
     unsigned int mHdmiResolutionValue;
-    unsigned int mHdmiS3DMode;
 
     unsigned int mHdmiPresetId;
     v4l2_std_id  mHdmiStdId;
@@ -152,19 +141,17 @@ private :
 
     int          mCurrentHdmiOutputMode;
     unsigned int mCurrentHdmiResolutionValue;
-    unsigned int mCurrentHdmiS3DMode;
     bool         mCurrentHdcpMode;
     int          mCurrentAudioMode;
     bool         mHdmiInfoChange;
 
     int          mFimcDstColorFormat;
 
-    SecBuffer    mFimcReservedMem;
+    SecBuffer    mFimcReservedMem[HDMI_FIMC_OUTPUT_BUF_NUM];
+    unsigned int mFimcCurrentOutBufIndex;
     SecFimc      mSecFimc;
 
-    unsigned int mHdmiResolutionValueList[NUM_SUPPORTED_RESOLUTION_2D];
-    unsigned int mHdmiS3dTbResolutionValueList[NUM_SUPPORTED_RESOLUTION_S3D_TB];
-    unsigned int mHdmiS3dSbsResolutionValueList[NUM_SUPPORTED_RESOLUTION_S3D_SBS];
+    unsigned int mHdmiResolutionValueList[14];
     int          mHdmiSizeOfResolutionValueList;
 
     SecBuffer    mMixerBuffer[HDMI_LAYER_MAX][MAX_BUFFERS_MIXER];
@@ -208,8 +195,7 @@ public :
 	bool        clear(int hdmiLayer);
 
     bool        setHdmiOutputMode(int hdmiOutputMode, bool forceRun = false);
-    bool        setHdmiResolution(unsigned int hdmiResolutionValue, unsigned int s3dMode, bool forceRun = false);
-    unsigned int getHdmiResolution(void);
+    bool        setHdmiResolution(unsigned int hdmiResolutionValue, bool forceRun = false);
     bool        setHdcpMode(bool hdcpMode, bool forceRun = false);
     bool        setUIRotation(unsigned int rotVal, unsigned int hwcLayer);
     bool        setDisplaySize(int width, int height);
@@ -221,12 +207,12 @@ private:
     bool        m_startHdmi(int hdmiLayer);
     bool        m_stopHdmi(int hdmiLayer);
     bool        m_setHdmiOutputMode(int hdmiOutputMode);
-    bool        m_setHdmiResolution(unsigned int hdmiResolutionValue, unsigned int s3dMode);
+    bool        m_setHdmiResolution(unsigned int hdmiResolutionValue);
     bool        m_setCompositeResolution(unsigned int compositeStdId);
     bool        m_setHdcpMode(bool hdcpMode);
     bool        m_setAudioMode(int audioMode);
 
-    int         m_resolutionValueIndex(unsigned int ResolutionValue, unsigned int s3dMode);
+    int         m_resolutionValueIndex(unsigned int ResolutionValue);
     bool        m_flagHWConnected(void);
 };
 

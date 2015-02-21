@@ -41,7 +41,6 @@ namespace android {
 
     enum {
         SET_HDMI_STATUS = IBinder::FIRST_CALL_TRANSACTION,
-        GET_HDMI_STATUS,
         SET_HDMI_MODE,
         SET_HDMI_RESOLUTION,
         SET_HDMI_HDCP,
@@ -137,11 +136,6 @@ namespace android {
             setHdmiStatus(status);
         } break;
 
-        case GET_HDMI_STATUS: {
-             uint32_t status = getHdmiCableStatus();
-             reply->writeInt32(status);
-        } break;
-
         case SET_HDMI_MODE: {
             int mode = data.readInt32();
             setHdmiMode(mode);
@@ -149,8 +143,7 @@ namespace android {
 
         case SET_HDMI_RESOLUTION: {
             int resolution = data.readInt32();
-            int s3dMode = data.readInt32();
-            setHdmiResolution(resolution, (HDMI_S3D_MODE)s3dMode);
+            setHdmiResolution(resolution);
         } break;
 
         case SET_HDMI_HDCP: {
@@ -170,26 +163,18 @@ namespace android {
         } break;
 
         case BLIT_2_HDMI: {
-            int32_t w = data.readInt32();
-            int32_t h = data.readInt32();
-            int32_t colorFormat = data.readInt32();
-            int32_t physYAddr  = data.readInt32();
+            uint32_t w = data.readInt32();
+            uint32_t h = data.readInt32();
+            uint32_t colorFormat = data.readInt32();
+            uint32_t physYAddr  = data.readInt32();
             uint32_t physCbAddr = data.readInt32();
             uint32_t physCrAddr = data.readInt32();
             uint32_t dstX   = data.readInt32();
             uint32_t dstY   = data.readInt32();
             uint32_t hdmiLayer   = data.readInt32();
             uint32_t num_of_hwc_layer = data.readInt32();
-            uint32_t a = data.readInt32();
-            uint32_t b = data.readInt32();
-            uint32_t c = data.readInt32();
-            uint32_t d = data.readInt32();
-            uint32_t e = data.readInt32();
-            uint32_t f = data.readInt32();
-            uint32_t g = data.readInt32();
-            uint32_t hh = data.readInt32();
 
-            blit2Hdmi(w, h, colorFormat, physYAddr, physCbAddr, physCrAddr, dstX, dstY, hdmiLayer, num_of_hwc_layer, a, b, c, d, e, f, g, hh);
+            blit2Hdmi(w, h, colorFormat, physYAddr, physCbAddr, physCrAddr, dstX, dstY, hdmiLayer, num_of_hwc_layer);
         } break;
 
         default :
@@ -226,15 +211,7 @@ namespace android {
         }
 
         if (hdmiCableInserted() == true)
-            this->blit2Hdmi(mLCD_width, mLCD_height, HAL_PIXEL_FORMAT_BGRA_8888, 0, 0, 0, 0, 0, HDMI_MODE_UI, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    }
-
-    uint32_t SecTVOutService::getHdmiCableStatus()
-    {
-        Mutex::Autolock _l(mLock);
-
-        //ALOGD("%s TV Cable status = %d", __func__, hdmiCableInserted());
-        return hdmiCableInserted();
+            this->blit2Hdmi(mLCD_width, mLCD_height, HAL_PIXEL_FORMAT_BGRA_8888, 0, 0, 0, 0, 0, HDMI_MODE_UI, 0);
     }
 
     void SecTVOutService::setHdmiMode(uint32_t mode)
@@ -248,22 +225,15 @@ namespace android {
         }
     }
 
-    void SecTVOutService::setHdmiResolution(uint32_t resolution, HDMI_S3D_MODE s3dMode)
+    void SecTVOutService::setHdmiResolution(uint32_t resolution)
     {
         //ALOGD("%s TV resolution = %d", __func__, resolution);
         Mutex::Autolock _l(mLock);
 
-        if ((hdmiCableInserted() == true) && (mSecHdmi.setHdmiResolution(resolution, s3dMode)) == false) {
+        if ((hdmiCableInserted() == true) && (mSecHdmi.setHdmiResolution(resolution)) == false) {
             ALOGE("%s::mSecHdmi.setHdmiResolution() fail", __func__);
             return;
         }
-    }
-
-    uint32_t SecTVOutService::getHdmiResolution(void)
-    {
-        Mutex::Autolock _l(mLock);
-
-        return mSecHdmi.getHdmiResolution();
     }
 
     void SecTVOutService::setHdmiHdcp(uint32_t hdcp_en)
@@ -297,19 +267,11 @@ namespace android {
         return;
     }
 
-    void SecTVOutService::blit2Hdmi(int32_t w, int32_t h, int32_t colorFormat, 
-                                 int32_t pPhyYAddr, uint32_t pPhyCbAddr, uint32_t pPhyCrAddr,
+    void SecTVOutService::blit2Hdmi(uint32_t w, uint32_t h, uint32_t colorFormat, 
+                                 uint32_t pPhyYAddr, uint32_t pPhyCbAddr, uint32_t pPhyCrAddr,
                                  uint32_t dstX, uint32_t dstY,
                                  uint32_t hdmiMode,
-                                 uint32_t num_of_hwc_layer,
-                                 uint32_t a,
-                                 uint32_t b,
-                                 uint32_t c,
-                                 uint32_t d,
-                                 uint32_t e,
-                                 uint32_t f,
-                                 uint32_t g,
-                                 uint32_t hh)
+                                 uint32_t num_of_hwc_layer)
     {
         Mutex::Autolock _l(mLock);
 

@@ -13,5 +13,5 @@
 # limitations under the License.
 
 ifeq ($(filter-out exynos4,$(TARGET_BOARD_PLATFORM)),)
-include $(all-subdir-makefiles)
+#include $(all-subdir-makefiles)
 endif
